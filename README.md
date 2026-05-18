@@ -30,3 +30,23 @@ This project is fully containerized and configured to build seamlessly across ar
 1. **Build the Docker Image:**
    ```bash
    docker build --platform linux/arm64 -t cputracker .
+
+2. **Run Container:**
+    ```bash
+    docker run -p 8000:8000 -p 8501:8501 cputracker
+
+3. **Explore the App:**
+   - Interactive UI: `http://localhost:8501`
+   - API Sandbox (Swagger Docs): `http://localhost:8000/docs`
+
+---
+
+## 💡 Key Engineering Challenges Solved
+
+### Thread-Safe Database Writes in Asynchronous Contexts
+**Challenge:** FastAPI's background tasks run outside the main request-response cycle, creating potential database session collisions when logging fast-moving metric data.
+**Solution:** Implemented explicit session handling context managers within the background executor (`analyze_and_save`), ensuring every isolated background thread opens, commits, and cleanly closes its own database connection.
+
+### Seamless Multi-Platform Containerization
+**Challenge:** Environment and pathing discrepancies when transitioning the application stack from global Windows environments to Apple Silicon containerized environments (`linux/arm64`).
+**Solution:** Bypassed shell binary lookup limitations by refactoring the container entry point instructions to use explicit `python -m` module wrappers, ensuring cross-platform package execution reliability.
